@@ -33,6 +33,7 @@ hold on
 for plotID = 1:num_of_degs
     subplot(num_of_plots_per_raws,num_of_degs/num_of_plots_per_raws,plotID);
     hold on
+    sgtitle("Unit #"+chosen_neuron+" PSTH per direction");
     if(plotID == 1 || plotID == 7)
         ylabel('rate[Hz]');
     end

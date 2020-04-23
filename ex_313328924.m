@@ -52,14 +52,17 @@ end
 % end
 % hold off
 %% Part 2
-
+UnitsData.responseMean = zeros(10,num_of_degs);
+UnitsData.responseSD = zeros(10,num_of_degs);
+UnitsData.VMfit = cell(10,1);
+UnitsData.selctivity = strings([10,1]);
 mean_std_mat = cell(10,4);
 mean_std_mat(:,1:2) = {zeros(1,num_of_degs)};
 for unit_idx = 1:num_of_neurons
     for j = 1:num_of_degs
         num_spikes_per_rep = sum(squeeze(mat(unit_idx,j,:,:)),2)/expirament_duration;
-        mean_std_mat{unit_idx,1}(j) = mean(num_spikes_per_rep);
-        mean_std_mat{unit_idx,2}(j) = std(num_spikes_per_rep);      
+        UnitsData.responseMean(unit_idx,j) = mean(num_spikes_per_rep);
+        UnitsData.responseSD(unit_idx,j) = std(num_spikes_per_rep);      
     end
 end
 VM_drct = 'A * exp (k * cos (x - PO))';
@@ -72,7 +75,7 @@ FitDeff_ornt = fittype(VM_ornt, ...
                   'independent', 'x');
               
 for unit_idx = 1:num_of_neurons
-    [deg_max, idx_max] = max(mean_std_mat{unit_idx,1});
+    [deg_max, idx_max] = max(UnitsData.responseMean(unit_idx,:));
     start_deg = deg2rad(deg_vec(idx_max));
     fitOpt_drct = fitoptions (FitDeff_drct);
     fitOpt_drct.Lower       = [0, 0     , -pi ];
@@ -83,15 +86,15 @@ for unit_idx = 1:num_of_neurons
     fitOpt_ornt.Upper       = [inf , inf	, pi  ];
     fitOpt_ornt.Startpoint  = [2  , 2   , start_deg - 180];
     [fitResult_drct, GoF_drct] = fit(deg2rad(deg_vec)',...
-        mean_std_mat{unit_idx,1}', FitDeff_drct, fitOpt_drct); 
+        UnitsData.responseMean(unit_idx,:)', FitDeff_drct, fitOpt_drct); 
     [fitResult_ornt, GoF_ornt] = fit(deg2rad(deg_vec)',...
-        mean_std_mat{unit_idx,1}', FitDeff_ornt, fitOpt_ornt);
+        UnitsData.responseMean(unit_idx,:)', FitDeff_ornt, fitOpt_ornt);
     if GoF_drct.rmse < GoF_ornt.rmse
-        mean_std_mat{unit_idx,3} = fitResult_drct;
-        mean_std_mat{unit_idx,4} = 'Direction';
+        UnitsData.VMfit{unit_idx} = fitResult_drct;
+        UnitsData.selctivity{unit_idx} = 'Direction';
     else
-        mean_std_mat{unit_idx,3} = fitResult_ornt;
-        mean_std_mat{unit_idx,4} = 'Orientation';
+        UnitsData.VMfit{unit_idx} = fitResult_ornt;
+        UnitsData.selctivity{unit_idx} = 'Orientation';
     end
 end
 
@@ -106,8 +109,8 @@ for unit_idx = 1:num_of_neurons
     subplot (2,5, unit_idx);
     hold on;
     title("Unit #" + unit_idx);
-    errorbar(deg_vec, mean_std_mat{unit_idx,1}, mean_std_mat{unit_idx,2}, 'o');
-    plot(x_vec, mean_std_mat{unit_idx,3}(x_vec_rad), 'r'); 
+    errorbar(deg_vec, UnitsData.responseMean(unit_idx,:), UnitsData.responseSD(unit_idx,:), 'o');
+    plot(x_vec, UnitsData.VMfit{unit_idx}(x_vec_rad), 'r'); 
     xticks(x_ticks);
     if unit_idx == 1 || unit_idx == 6
         ylabel('rate[Hz]')

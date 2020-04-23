@@ -58,13 +58,7 @@ UnitsData.VMfit = cell(10,1);
 UnitsData.selctivity = strings([10,1]);
 mean_std_mat = cell(10,4);
 mean_std_mat(:,1:2) = {zeros(1,num_of_degs)};
-for unit_idx = 1:num_of_neurons
-    for j = 1:num_of_degs
-        num_spikes_per_rep = sum(squeeze(mat(unit_idx,j,:,:)),2)/expirament_duration;
-        UnitsData.responseMean(unit_idx,j) = mean(num_spikes_per_rep);
-        UnitsData.responseSD(unit_idx,j) = std(num_spikes_per_rep);      
-    end
-end
+
 VM_drct = 'A * exp (k * cos (x - PO))';
 FitDeff_drct = fittype(VM_drct, ...
                   'coefficients', {'A','k', 'PO'}, ...
@@ -75,6 +69,13 @@ FitDeff_ornt = fittype(VM_ornt, ...
                   'independent', 'x');
               
 for unit_idx = 1:num_of_neurons
+%% caculatin mean and SD for unit i 
+    for j = 1:num_of_degs
+        num_spikes_per_rep = sum(squeeze(mat(unit_idx,j,:,:)),2)/expirament_duration;
+        UnitsData.responseMean(unit_idx,j) = mean(num_spikes_per_rep);
+        UnitsData.responseSD(unit_idx,j) = std(num_spikes_per_rep);      
+    end
+%% caculatin VN fit fot unit i    
     [deg_max, idx_max] = max(UnitsData.responseMean(unit_idx,:));
     start_deg = deg2rad(deg_vec(idx_max));
     fitOpt_drct = fitoptions (FitDeff_drct);

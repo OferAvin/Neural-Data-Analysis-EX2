@@ -75,7 +75,7 @@ for unit_idx = 1:num_of_neurons
         UnitsData.responseMean(unit_idx,j) = mean(num_spikes_per_rep);
         UnitsData.responseSD(unit_idx,j) = std(num_spikes_per_rep);      
     end
-%% caculatin VN fit fot unit i    
+%% caculatin VM fit fot unit i    
     [deg_max, idx_max] = max(UnitsData.responseMean(unit_idx,:));
     start_deg = deg2rad(deg_vec(idx_max));
     fitOpt_drct = fitoptions (FitDeff_drct);

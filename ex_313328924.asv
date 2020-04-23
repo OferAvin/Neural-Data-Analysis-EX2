@@ -52,7 +52,8 @@ end
 % end
 % hold off
 %% Part 2
-
+UnitsData.responseMean = zeros(10,num_of_degs);
+UnitsData.responseSD = zeros(10,num_of_degs);
 mean_std_mat = cell(10,4);
 mean_std_mat(:,1:2) = {zeros(1,num_of_degs)};
 for unit_idx = 1:num_of_neurons

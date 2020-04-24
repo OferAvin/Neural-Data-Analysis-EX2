@@ -1,5 +1,5 @@
 %% preparing and organizing date
-% clear all
+clear all
 close all
 load SpikesX10U12D.mat
 num_of_neurons = size(SpikesX10U12D,1);

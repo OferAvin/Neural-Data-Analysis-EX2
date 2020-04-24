@@ -1,11 +1,12 @@
-%% preparing and orgenizing date
-clear all
+%% preparing and organizing date
+% clear all
 close all
 load SpikesX10U12D.mat
 num_of_neurons = size(SpikesX10U12D,1);
 num_of_degs = size(SpikesX10U12D,2);
 num_of_rep = size(SpikesX10U12D,3);
-%% creating parameters
+
+%% creating data parameters
 bin_duration = 0.02;
 expirament_duration = 1.28;
 times_bins_vec = (0:bin_duration:expirament_duration);
@@ -13,110 +14,131 @@ chosen_neuron = 3;
 num_of_plots_per_raws = 2;
 deg_vec = 0:30:330;
 num_of_bins = length(times_bins_vec);
-mat = zeros(num_of_neurons,num_of_degs,num_of_rep,num_of_bins-1);
-onesVec = ones(1,num_of_rep);          %using for addition
-sum_of_spike_for_bin = zeros(1,expirament_duration/bin_duration);
+onesVec = ones(1,num_of_rep);              %using for summerizing matrix raws
+sum_of_spike_for_bin = zeros(1,round(expirament_duration/bin_duration));
 rate = zeros(num_of_degs,num_of_bins-1);
-%% creating a 4dim array 
+mat = zeros(num_of_neurons,num_of_degs,num_of_rep,num_of_bins-1);
+
+%% Ploting parameters
+fontSize = 11;
+axis_ticks_fontSize = 9;
+
+%% Part 1
+%creating a 4dim array 
 for unit_idx = 1:num_of_neurons
     for j = 1:num_of_degs
         for k = 1:num_of_rep
-            mat(unit_idx,j,k,:) = histcounts(SpikesX10U12D(unit_idx,j,k).TimeList,times_bins_vec);
+            mat(unit_idx,j,k,:) =...   %counting spikes for each repetition for each time bin
+                histcounts(SpikesX10U12D(unit_idx,j,k).TimeList,times_bins_vec);
         end
-%% calculating rate for each degree for a chosen neuron
+%%calculating rate for each degree for a chosen neuron
         if unit_idx == chosen_neuron
-            rep_bin_mat = squeeze(mat(chosen_neuron,j,:,:));
-            sum_of_spike_for_bin = onesVec*rep_bin_mat;
-            rate(j,:) = sum_of_spike_for_bin/(bin_duration*num_of_rep);
+            rep_bin_mat = squeeze(mat(chosen_neuron,j,:,:)); %extracting a 2dim mat-[rep, time bin]
+            sum_of_spike_for_bin = onesVec*rep_bin_mat;      %summerizing all spikes for each time bin
+            rate(j,:) = sum_of_spike_for_bin/(bin_duration*num_of_rep); %calculating firing rate
         end
     end
 end
-% %% Ploting
-% figure();
-% hold on;
-% for plotID = 1:num_of_degs
-%     subplot(num_of_plots_per_raws,num_of_degs/num_of_plots_per_raws,plotID);
-%     hold on;
-%     sgtitle("Unit #"+chosen_neuron+" PSTH per direction");
-%     if(plotID == 1 || plotID == 7)
-%         ylabel('rate[Hz]');
-%     end
-%     if(plotID >=7 && plotID <= 12)
-%         xlabel('time[sec]');
-%     end
-%     set(gca,'YLim',[0 30],'XLim',[0 expirament_duration]);
-%     degree = num2str(deg_vec(plotID));
-%     title("\theta = "+ degree+" \circ");
-%     bar(times_bins_vec(1:end-1),rate(plotID,:),'histc');
-% %     pbaspect([1 1 1])
-% end
-% hold off
-%% Part 2
 
-mean_std_mat = cell(10,4);
-mean_std_mat(:,1:2) = {zeros(1,num_of_degs)};
-for unit_idx = 1:num_of_neurons
-    for j = 1:num_of_degs
-        num_spikes_per_rep = sum(squeeze(mat(unit_idx,j,:,:)),2)/expirament_duration;
-        mean_std_mat{unit_idx,1}(j) = mean(num_spikes_per_rep);
-        mean_std_mat{unit_idx,2}(j) = std(num_spikes_per_rep);      
+%% Plotting
+figure('Color', 'white', 'Units', 'centimeters', 'Position' ,[7 ,2, 20, 12]);
+hold on;
+for plotID = 1:num_of_degs
+    p = subplot(num_of_plots_per_raws,num_of_degs/num_of_plots_per_raws,plotID);
+    
+    hold on;
+    sgtitle("Unit  #"+chosen_neuron+" PSTH per direction");
+    set(gca,'YLim',[0 30],'XLim',[0 expirament_duration],'FontSize', axis_ticks_fontSize);
+    if(plotID == 1 || plotID == 7)
+        ylabel('rate[Hz]', 'FontSize', fontSize);
     end
+    if(plotID >=7)
+        xlabel('time[sec]', 'FontSize', fontSize);
+        pos = get(p, 'position'); %get position of subplots in order to reposition
+        set(p, 'position', pos + [0, 0.13 ,0 ,0]) %reposition subplots
+    end
+    yticks(20);
+    degree = num2str(deg_vec(plotID));
+    title("\theta = "+ degree+" \circ", 'FontSize', fontSize );
+    bar(times_bins_vec(1:end-1),rate(plotID,:),'histc');
+    axis square                          
 end
-VM_drct = 'A * exp (k * cos (x - PO))';
+hold off
+
+%% Part 2
+UnitsData.responseMean = zeros(num_of_neurons,num_of_degs); %creating a struct to hold all data needed
+UnitsData.responseSD = zeros(num_of_neurons,num_of_degs);
+UnitsData.VMfit = cell(num_of_neurons,1);
+UnitsData.selctivity = strings([num_of_neurons,1]);
+
+VM_drct = 'A * exp (k * cos (x - PO))';          %creating VM func for direction
 FitDeff_drct = fittype(VM_drct, ...
                   'coefficients', {'A','k', 'PO'}, ...
                   'independent', 'x');
-VM_ornt = 'A * exp (k * cos (2*(x- PO)))';
+VM_ornt = 'A * exp (k * cos (2*(x- PO)))';       %creating VM func for orientaion
 FitDeff_ornt = fittype(VM_ornt, ...
                   'coefficients', {'A','k', 'PO'}, ...
                   'independent', 'x');
               
 for unit_idx = 1:num_of_neurons
-    [deg_max, idx_max] = max(mean_std_mat{unit_idx,1});
-    start_deg = deg2rad(deg_vec(idx_max));
-    fitOpt_drct = fitoptions (FitDeff_drct);
-    fitOpt_drct.Lower       = [0, 0     , -pi ];
+%% calculating mean and SD for unit i 
+    for j = 1:num_of_degs
+        num_spikes_per_rep = sum(squeeze(mat(unit_idx,j,:,:)),2)/expirament_duration; %creating an array of sums of spikes of each repetition for each degree  
+        UnitsData.responseMean(unit_idx,j) = mean(num_spikes_per_rep); %calculating mean of all repetitions
+        UnitsData.responseSD(unit_idx,j) = std(num_spikes_per_rep);    %calculating SD of all repetitions  
+    end
+    
+%% calculating VM fit for unit i    
+    [deg_max, idx_max] = max(UnitsData.responseMean(unit_idx,:));%finding the max degree to initialize fit with
+    start_deg = deg2rad(deg_vec(idx_max));  %extracting max degree
+    fitOpt_drct = fitoptions (FitDeff_drct); %determining start values for fit_drct 
+    fitOpt_drct.Lower       = [0, 0     , -pi ]; 
     fitOpt_drct.Upper       = [inf, inf 	, pi  ];
-    fitOpt_drct.Startpoint  = [2   ,2  , start_deg];
-    fitOpt_ornt = fitoptions (FitDeff_ornt);
+    fitOpt_drct.Startpoint  = [deg_max   ,2  , start_deg];
+    fitOpt_ornt = fitoptions (FitDeff_ornt);    %determining start values for fit_ornt
     fitOpt_ornt.Lower       = [0   ,0  , -pi ];
     fitOpt_ornt.Upper       = [inf , inf	, pi  ];
-    fitOpt_ornt.Startpoint  = [2  , 2   , start_deg - 180];
-    [fitResult_drct, GoF_drct] = fit(deg2rad(deg_vec)',...
-        mean_std_mat{unit_idx,1}', FitDeff_drct, fitOpt_drct); 
-    [fitResult_ornt, GoF_ornt] = fit(deg2rad(deg_vec)',...
-        mean_std_mat{unit_idx,1}', FitDeff_ornt, fitOpt_ornt);
-    if GoF_drct.rmse < GoF_ornt.rmse
-        mean_std_mat{unit_idx,3} = fitResult_drct;
-        mean_std_mat{unit_idx,4} = 'Direction';
+    fitOpt_ornt.Startpoint  = [deg_max  , 2   , start_deg - 180];
+    [fitResult_drct, GoF_drct] = fit(deg2rad(deg_vec)',...  %aplying fit for direction function 
+        UnitsData.responseMean(unit_idx,:)', FitDeff_drct, fitOpt_drct); 
+    [fitResult_ornt, GoF_ornt] = fit(deg2rad(deg_vec)',...  %aplying fit for orientation function 
+        UnitsData.responseMean(unit_idx,:)', FitDeff_ornt, fitOpt_ornt);
+    if GoF_drct.rmse < GoF_ornt.rmse  %save the result with lower rmse indicating best result
+        UnitsData.VMfit{unit_idx} = fitResult_drct;
+        UnitsData.selctivity{unit_idx} = 'Direction';
     else
-        mean_std_mat{unit_idx,3} = fitResult_ornt;
-        mean_std_mat{unit_idx,4} = 'Orientation';
+        UnitsData.VMfit{unit_idx} = fitResult_ornt;
+        UnitsData.selctivity{unit_idx} = 'Orientation';
     end
 end
 
-%% Plot
+%% Plotting
 x_vec_rad = 0:0.01:2*pi;
 x_vec = rad2deg(x_vec_rad);
 x_ticks = 0:90:360;
-figure ('Color', 'w', 'Units', 'centimeters', 'Position', [0 0 25 10]);
+figure ('Color', 'w', 'Units', 'centimeters', 'Position', [4 3 26 10]);
 hold on;
 sgtitle("Direction/Orientation selectivity - Von Mises fit per unit");
 for unit_idx = 1:num_of_neurons
     subplot (2,5, unit_idx);
     hold on;
-    title("Unit #" + unit_idx);
-    errorbar(deg_vec, mean_std_mat{unit_idx,1}, mean_std_mat{unit_idx,2}, 'o');
-    plot(x_vec, mean_std_mat{unit_idx,3}(x_vec_rad), 'r'); 
+    if UnitsData.selctivity(unit_idx) == "Direction"
+        title("Unit #" + unit_idx + " - Direction", 'FontSize', fontSize-2, 'Color', 'blue');
+    else
+        title("Unit #" + unit_idx + " - Orientation", 'FontSize', fontSize-2, 'Color', 'magenta');
+    end
+    errorbar(deg_vec, UnitsData.responseMean(unit_idx,:),... %plotting data using errorbar
+        UnitsData.responseSD(unit_idx,:), 'o');
+    plot(x_vec, UnitsData.VMfit{unit_idx}(x_vec_rad), 'r');   %plotting fit result
     xticks(x_ticks);
     if unit_idx == 1 || unit_idx == 6
-        ylabel('rate[Hz]')
+        ylabel('rate[Hz]', 'FontSize', fontSize)
     end
     if unit_idx == 5
         legend('rate' , 'VM fit');
     end
     if unit_idx > 5
-        xlabel('direction[deg]')
+        xlabel('direction[deg]','FontSize', fontSize)
     end
 end
 hold off;

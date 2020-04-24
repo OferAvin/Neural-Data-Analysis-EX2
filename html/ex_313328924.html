@@ -1,0 +1,349 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>ex_313328924</title><meta name="generator" content="MATLAB 9.6"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2020-04-24"><meta name="DC.source" content="ex_313328924.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#1">preparing and organizing date</a></li><li><a href="#2">creating data parameters</a></li><li><a href="#3">Ploting parameters</a></li><li><a href="#4">Part 1</a></li><li><a href="#5">Plotting</a></li><li><a href="#6">Part 2</a></li><li><a href="#7">caculating mean and SD for unit i</a></li><li><a href="#8">caculating VM fit for unit i</a></li><li><a href="#10">Plotting</a></li></ul></div><h2 id="1">preparing and organizing date</h2><pre class="codeinput">clear <span class="string">all</span>
+close <span class="string">all</span>
+load <span class="string">SpikesX10U12D.mat</span>
+num_of_neurons = size(SpikesX10U12D,1);
+num_of_degs = size(SpikesX10U12D,2);
+num_of_rep = size(SpikesX10U12D,3);
+</pre><h2 id="2">creating data parameters</h2><pre class="codeinput">bin_duration = 0.02;
+expirament_duration = 1.28;
+times_bins_vec = (0:bin_duration:expirament_duration);
+chosen_neuron = 3;
+num_of_plots_per_raws = 2;
+deg_vec = 0:30:330;
+num_of_bins = length(times_bins_vec);
+onesVec = ones(1,num_of_rep);          <span class="comment">%using for addition</span>
+sum_of_spike_for_bin = zeros(1,round(expirament_duration/bin_duration));
+rate = zeros(num_of_degs,num_of_bins-1);
+mat = zeros(num_of_neurons,num_of_degs,num_of_rep,num_of_bins-1);
+</pre><h2 id="3">Ploting parameters</h2><pre class="codeinput">paper_width = 30;
+size_ratio = 0.8;
+title_fontSize = 12;
+fontSize = 11;
+axis_ticks_fontSize = 10;
+</pre><h2 id="4">Part 1</h2><pre class="codeinput"><span class="comment">%creating a 4dim array</span>
+<span class="keyword">for</span> unit_idx = 1:num_of_neurons
+    <span class="keyword">for</span> j = 1:num_of_degs
+        <span class="keyword">for</span> k = 1:num_of_rep
+            mat(unit_idx,j,k,:) = histcounts(SpikesX10U12D(unit_idx,j,k).TimeList,times_bins_vec);
+        <span class="keyword">end</span>
+<span class="comment">%calculating rate for each degree for a chosen neuron</span>
+        <span class="keyword">if</span> unit_idx == chosen_neuron
+            rep_bin_mat = squeeze(mat(chosen_neuron,j,:,:));
+            sum_of_spike_for_bin = onesVec*rep_bin_mat;
+            rate(j,:) = sum_of_spike_for_bin/(bin_duration*num_of_rep);
+        <span class="keyword">end</span>
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+</pre><h2 id="5">Plotting</h2><pre class="codeinput">figure(<span class="string">'Units'</span>, <span class="string">'centimeters'</span>, <span class="string">'Position'</span> ,[0 ,0, paper_width, paper_width*size_ratio]);
+hold <span class="string">on</span>;
+<span class="keyword">for</span> plotID = 1:num_of_degs
+    subplot(num_of_plots_per_raws,num_of_degs/num_of_plots_per_raws,plotID);
+    hold <span class="string">on</span>;
+    sgtitle(<span class="string">"Unit #"</span>+chosen_neuron+<span class="string">" PSTH per direction"</span>);
+    <span class="keyword">if</span>(plotID == 1 || plotID == 7)
+        ylabel(<span class="string">'rate[Hz]'</span>, <span class="string">'FontSize'</span>, fontSize);
+    <span class="keyword">end</span>
+    <span class="keyword">if</span>(plotID &gt;=7 &amp;&amp; plotID &lt;= 12)
+        xlabel(<span class="string">'time[sec]'</span>, <span class="string">'FontSize'</span>, fontSize);
+    <span class="keyword">end</span>
+    set(gca,<span class="string">'YLim'</span>,[0 30],<span class="string">'XLim'</span>,[0 expirament_duration],<span class="string">'FontSize'</span>, axis_ticks_fontSize);
+    degree = num2str(deg_vec(plotID));
+    title(<span class="string">"\theta = "</span>+ degree+<span class="string">" \circ"</span>, <span class="string">'FontSize'</span>, title_fontSize );
+    bar(times_bins_vec(1:end-1),rate(plotID,:),<span class="string">'histc'</span>);
+    axis <span class="string">square</span>
+<span class="keyword">end</span>
+hold <span class="string">off</span>
+</pre><img vspace="5" hspace="5" src="ex_313328924_01.png" alt=""> <h2 id="6">Part 2</h2><pre class="codeinput">UnitsData.responseMean = zeros(num_of_neurons,num_of_degs);
+UnitsData.responseSD = zeros(num_of_neurons,num_of_degs);
+UnitsData.VMfit = cell(num_of_neurons,1);
+UnitsData.selctivity = strings([num_of_neurons,1]);
+
+VM_drct = <span class="string">'A * exp (k * cos (x - PO))'</span>;
+FitDeff_drct = fittype(VM_drct, <span class="keyword">...</span>
+                  <span class="string">'coefficients'</span>, {<span class="string">'A'</span>,<span class="string">'k'</span>, <span class="string">'PO'</span>}, <span class="keyword">...</span>
+                  <span class="string">'independent'</span>, <span class="string">'x'</span>);
+VM_ornt = <span class="string">'A * exp (k * cos (2*(x- PO)))'</span>;
+FitDeff_ornt = fittype(VM_ornt, <span class="keyword">...</span>
+                  <span class="string">'coefficients'</span>, {<span class="string">'A'</span>,<span class="string">'k'</span>, <span class="string">'PO'</span>}, <span class="keyword">...</span>
+                  <span class="string">'independent'</span>, <span class="string">'x'</span>);
+
+<span class="keyword">for</span> unit_idx = 1:num_of_neurons
+</pre><h2 id="7">caculating mean and SD for unit i</h2><pre class="codeinput">    <span class="keyword">for</span> j = 1:num_of_degs
+        num_spikes_per_rep = sum(squeeze(mat(unit_idx,j,:,:)),2)/expirament_duration;
+        UnitsData.responseMean(unit_idx,j) = mean(num_spikes_per_rep);
+        UnitsData.responseSD(unit_idx,j) = std(num_spikes_per_rep);
+    <span class="keyword">end</span>
+</pre><h2 id="8">caculating VM fit for unit i</h2><pre class="codeinput">    [deg_max, idx_max] = max(UnitsData.responseMean(unit_idx,:));
+    start_deg = deg2rad(deg_vec(idx_max));
+    fitOpt_drct = fitoptions (FitDeff_drct);
+    fitOpt_drct.Lower       = [0, 0     , -pi ];
+    fitOpt_drct.Upper       = [inf, inf 	, pi  ];
+    fitOpt_drct.Startpoint  = [2   ,2  , start_deg];
+    fitOpt_ornt = fitoptions (FitDeff_ornt);
+    fitOpt_ornt.Lower       = [0   ,0  , -pi ];
+    fitOpt_ornt.Upper       = [inf , inf	, pi  ];
+    fitOpt_ornt.Startpoint  = [2  , 2   , start_deg - 180];
+    [fitResult_drct, GoF_drct] = fit(deg2rad(deg_vec)',<span class="keyword">...</span>
+        UnitsData.responseMean(unit_idx,:)', FitDeff_drct, fitOpt_drct);
+    [fitResult_ornt, GoF_ornt] = fit(deg2rad(deg_vec)',<span class="keyword">...</span>
+        UnitsData.responseMean(unit_idx,:)', FitDeff_ornt, fitOpt_ornt);
+    <span class="keyword">if</span> GoF_drct.rmse &lt; GoF_ornt.rmse
+        UnitsData.VMfit{unit_idx} = fitResult_drct;
+        UnitsData.selctivity{unit_idx} = <span class="string">'Direction'</span>;
+    <span class="keyword">else</span>
+        UnitsData.VMfit{unit_idx} = fitResult_ornt;
+        UnitsData.selctivity{unit_idx} = <span class="string">'Orientation'</span>;
+    <span class="keyword">end</span>
+</pre><pre class="codeinput"><span class="keyword">end</span>
+</pre><h2 id="10">Plotting</h2><pre class="codeinput">x_vec_rad = 0:0.01:2*pi;
+x_vec = rad2deg(x_vec_rad);
+x_ticks = 0:90:360;
+figure (<span class="string">'Color'</span>, <span class="string">'w'</span>, <span class="string">'Units'</span>, <span class="string">'centimeters'</span>, <span class="string">'Position'</span>, [0 0 25 10]);
+hold <span class="string">on</span>;
+sgtitle(<span class="string">"Direction/Orientation selectivity - Von Mises fit per unit"</span>);
+<span class="keyword">for</span> unit_idx = 1:num_of_neurons
+    subplot (2,5, unit_idx);
+    hold <span class="string">on</span>;
+    title(<span class="string">"Unit #"</span> + unit_idx);
+    errorbar(deg_vec, UnitsData.responseMean(unit_idx,:), UnitsData.responseSD(unit_idx,:), <span class="string">'o'</span>);
+    plot(x_vec, UnitsData.VMfit{unit_idx}(x_vec_rad), <span class="string">'r'</span>);
+    xticks(x_ticks);
+    <span class="keyword">if</span> unit_idx == 1 || unit_idx == 6
+        ylabel(<span class="string">'rate[Hz]'</span>)
+    <span class="keyword">end</span>
+    <span class="keyword">if</span> unit_idx == 5
+        legend(<span class="string">'rate'</span> , <span class="string">'VM fit'</span>);
+    <span class="keyword">end</span>
+    <span class="keyword">if</span> unit_idx &gt; 5
+        xlabel(<span class="string">'direction[deg]'</span>)
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+hold <span class="string">off</span>;
+</pre><img vspace="5" hspace="5" src="ex_313328924_02.png" alt=""> <p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2019a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% preparing and organizing date
+clear all
+close all
+load SpikesX10U12D.mat
+num_of_neurons = size(SpikesX10U12D,1);
+num_of_degs = size(SpikesX10U12D,2);
+num_of_rep = size(SpikesX10U12D,3);
+
+%% creating data parameters
+bin_duration = 0.02;
+expirament_duration = 1.28;
+times_bins_vec = (0:bin_duration:expirament_duration);
+chosen_neuron = 3;
+num_of_plots_per_raws = 2;
+deg_vec = 0:30:330;
+num_of_bins = length(times_bins_vec);
+onesVec = ones(1,num_of_rep);          %using for addition
+sum_of_spike_for_bin = zeros(1,round(expirament_duration/bin_duration));
+rate = zeros(num_of_degs,num_of_bins-1);
+mat = zeros(num_of_neurons,num_of_degs,num_of_rep,num_of_bins-1);
+
+%% Ploting parameters
+paper_width = 30;
+size_ratio = 0.8;
+title_fontSize = 12;
+fontSize = 11;
+axis_ticks_fontSize = 10;
+
+%% Part 1
+%creating a 4dim array 
+for unit_idx = 1:num_of_neurons
+    for j = 1:num_of_degs
+        for k = 1:num_of_rep
+            mat(unit_idx,j,k,:) = histcounts(SpikesX10U12D(unit_idx,j,k).TimeList,times_bins_vec);
+        end
+%calculating rate for each degree for a chosen neuron
+        if unit_idx == chosen_neuron
+            rep_bin_mat = squeeze(mat(chosen_neuron,j,:,:));
+            sum_of_spike_for_bin = onesVec*rep_bin_mat;
+            rate(j,:) = sum_of_spike_for_bin/(bin_duration*num_of_rep);
+        end
+    end
+end
+
+%% Plotting
+figure('Units', 'centimeters', 'Position' ,[0 ,0, paper_width, paper_width*size_ratio]);
+hold on;
+for plotID = 1:num_of_degs
+    subplot(num_of_plots_per_raws,num_of_degs/num_of_plots_per_raws,plotID);
+    hold on;
+    sgtitle("Unit #"+chosen_neuron+" PSTH per direction");
+    if(plotID == 1 || plotID == 7)
+        ylabel('rate[Hz]', 'FontSize', fontSize);
+    end
+    if(plotID >=7 && plotID <= 12)
+        xlabel('time[sec]', 'FontSize', fontSize);
+    end
+    set(gca,'YLim',[0 30],'XLim',[0 expirament_duration],'FontSize', axis_ticks_fontSize);
+    degree = num2str(deg_vec(plotID));
+    title("\theta = "+ degree+" \circ", 'FontSize', title_fontSize );
+    bar(times_bins_vec(1:end-1),rate(plotID,:),'histc');
+    axis square
+end
+hold off
+
+%% Part 2
+UnitsData.responseMean = zeros(num_of_neurons,num_of_degs);
+UnitsData.responseSD = zeros(num_of_neurons,num_of_degs);
+UnitsData.VMfit = cell(num_of_neurons,1);
+UnitsData.selctivity = strings([num_of_neurons,1]);
+
+VM_drct = 'A * exp (k * cos (x - PO))';
+FitDeff_drct = fittype(VM_drct, ...
+                  'coefficients', {'A','k', 'PO'}, ...
+                  'independent', 'x');
+VM_ornt = 'A * exp (k * cos (2*(x- PO)))';
+FitDeff_ornt = fittype(VM_ornt, ...
+                  'coefficients', {'A','k', 'PO'}, ...
+                  'independent', 'x');
+              
+for unit_idx = 1:num_of_neurons
+%% caculating mean and SD for unit i 
+    for j = 1:num_of_degs
+        num_spikes_per_rep = sum(squeeze(mat(unit_idx,j,:,:)),2)/expirament_duration;
+        UnitsData.responseMean(unit_idx,j) = mean(num_spikes_per_rep);
+        UnitsData.responseSD(unit_idx,j) = std(num_spikes_per_rep);      
+    end
+    
+%% caculating VM fit for unit i    
+    [deg_max, idx_max] = max(UnitsData.responseMean(unit_idx,:));
+    start_deg = deg2rad(deg_vec(idx_max));
+    fitOpt_drct = fitoptions (FitDeff_drct);
+    fitOpt_drct.Lower       = [0, 0     , -pi ];
+    fitOpt_drct.Upper       = [inf, inf 	, pi  ];
+    fitOpt_drct.Startpoint  = [2   ,2  , start_deg];
+    fitOpt_ornt = fitoptions (FitDeff_ornt);
+    fitOpt_ornt.Lower       = [0   ,0  , -pi ];
+    fitOpt_ornt.Upper       = [inf , inf	, pi  ];
+    fitOpt_ornt.Startpoint  = [2  , 2   , start_deg - 180];
+    [fitResult_drct, GoF_drct] = fit(deg2rad(deg_vec)',...
+        UnitsData.responseMean(unit_idx,:)', FitDeff_drct, fitOpt_drct); 
+    [fitResult_ornt, GoF_ornt] = fit(deg2rad(deg_vec)',...
+        UnitsData.responseMean(unit_idx,:)', FitDeff_ornt, fitOpt_ornt);
+    if GoF_drct.rmse < GoF_ornt.rmse
+        UnitsData.VMfit{unit_idx} = fitResult_drct;
+        UnitsData.selctivity{unit_idx} = 'Direction';
+    else
+        UnitsData.VMfit{unit_idx} = fitResult_ornt;
+        UnitsData.selctivity{unit_idx} = 'Orientation';
+    end
+end
+
+%% Plotting
+x_vec_rad = 0:0.01:2*pi;
+x_vec = rad2deg(x_vec_rad);
+x_ticks = 0:90:360;
+figure ('Color', 'w', 'Units', 'centimeters', 'Position', [0 0 25 10]);
+hold on;
+sgtitle("Direction/Orientation selectivity - Von Mises fit per unit");
+for unit_idx = 1:num_of_neurons
+    subplot (2,5, unit_idx);
+    hold on;
+    title("Unit #" + unit_idx);
+    errorbar(deg_vec, UnitsData.responseMean(unit_idx,:), UnitsData.responseSD(unit_idx,:), 'o');
+    plot(x_vec, UnitsData.VMfit{unit_idx}(x_vec_rad), 'r'); 
+    xticks(x_ticks);
+    if unit_idx == 1 || unit_idx == 6
+        ylabel('rate[Hz]')
+    end
+    if unit_idx == 5
+        legend('rate' , 'VM fit');
+    end
+    if unit_idx > 5
+        xlabel('direction[deg]')
+    end
+end
+hold off;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+##### SOURCE END #####
+--></body></html>

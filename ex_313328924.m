@@ -1,4 +1,5 @@
 %% preparing and organizing date
+tic
 clear all
 close all
 load SpikesX10U12D.mat
@@ -31,10 +32,10 @@ for unit_idx = 1:num_of_neurons
             mat(unit_idx,j,k,:) =...   %counting spikes for each repetition for each time bin
                 histcounts(SpikesX10U12D(unit_idx,j,k).TimeList,times_bins_vec);
         end
-%%calculating rate for each degree for a chosen neuron
+%calculating rate for each degree for a chosen neuron
         if unit_idx == chosen_neuron
-            rep_bin_mat = squeeze(mat(chosen_neuron,j,:,:)); %extracting a 2dim mat-[rep, time bin]
-            sum_of_spike_for_bin = onesVec*rep_bin_mat;      %summerizing all spikes for each time bin
+            rep_bin_mat = squeeze(mat(chosen_neuron,j,:,:));			%extracting a 2dim mat-[rep, time bin]
+            sum_of_spike_for_bin = onesVec*rep_bin_mat;      			%summerizing all spikes for each time bin
             rate(j,:) = sum_of_spike_for_bin/(bin_duration*num_of_rep); %calculating firing rate
         end
     end
@@ -54,8 +55,8 @@ for plotID = 1:num_of_degs
     end
     if(plotID >=7)
         xlabel('time[sec]', 'FontSize', fontSize);
-        pos = get(p, 'position'); %get position of subplots in order to reposition
-        set(p, 'position', pos + [0, 0.13 ,0 ,0]) %reposition subplots
+        pos = get(p, 'position'); 					%get position of subplots in order to reposition
+        set(p, 'position', pos + [0, 0.13 ,0 ,0]) 	%reposition subplots
     end
     yticks(20);
     degree = num2str(deg_vec(plotID));
@@ -81,7 +82,7 @@ FitDeff_ornt = fittype(VM_ornt, ...
                   'independent', 'x');
               
 for unit_idx = 1:num_of_neurons
-%% calculating mean and SD for unit i 
+%% calculating mean and SD for the unit i 
     for j = 1:num_of_degs
         num_spikes_per_rep = sum(squeeze(mat(unit_idx,j,:,:)),2)/expirament_duration; %creating an array of sums of spikes of each repetition for each degree  
         UnitsData.responseMean(unit_idx,j) = mean(num_spikes_per_rep); %calculating mean of all repetitions
@@ -90,20 +91,20 @@ for unit_idx = 1:num_of_neurons
     
 %% calculating VM fit for unit i    
     [deg_max, idx_max] = max(UnitsData.responseMean(unit_idx,:));%finding the max degree to initialize fit with
-    start_deg = deg2rad(deg_vec(idx_max));  %extracting max degree
-    fitOpt_drct = fitoptions (FitDeff_drct); %determining start values for fit_drct 
+    start_deg = deg2rad(deg_vec(idx_max)); 					%extracting max degree
+    fitOpt_drct = fitoptions (FitDeff_drct); 				%determining start values for fit_drct 
     fitOpt_drct.Lower       = [0, 0     , -pi ]; 
     fitOpt_drct.Upper       = [inf, inf 	, pi  ];
     fitOpt_drct.Startpoint  = [deg_max   ,2  , deg2rad(start_deg)];
-    fitOpt_ornt = fitoptions (FitDeff_ornt);    %determining start values for fit_ornt
+    fitOpt_ornt = fitoptions (FitDeff_ornt);    			%determining start values for fit_ornt
     fitOpt_ornt.Lower       = [0   ,0  , -pi ];
     fitOpt_ornt.Upper       = [inf , inf	, pi  ];
-    fitOpt_ornt.Startpoint  = [deg_max  , 2   , deg2rad(start_deg) - pi];
+    fitOpt_ornt.Startpoint  = [deg_max  , 2   , deg2rad(start_deg)];
     [fitResult_drct, GoF_drct] = fit(deg2rad(deg_vec)',...  %aplying fit for direction function 
         UnitsData.responseMean(unit_idx,:)', FitDeff_drct, fitOpt_drct); 
     [fitResult_ornt, GoF_ornt] = fit(deg2rad(deg_vec)',...  %aplying fit for orientation function 
         UnitsData.responseMean(unit_idx,:)', FitDeff_ornt, fitOpt_ornt);
-    if GoF_drct.rmse < GoF_ornt.rmse  %save the result with lower rmse indicating best result
+    if GoF_drct.rmse < GoF_ornt.rmse  						%save the result with lower rmse indicating best result
         UnitsData.VMfit{unit_idx} = fitResult_drct;
         UnitsData.selctivity{unit_idx} = 'Direction';
     else
@@ -127,7 +128,7 @@ for unit_idx = 1:num_of_neurons
     else
         title("Unit #" + unit_idx + " - Orientation", 'FontSize', fontSize-2, 'Color', 'magenta');
     end
-    errorbar(deg_vec, UnitsData.responseMean(unit_idx,:),... %plotting data using errorbar
+    errorbar(deg_vec, UnitsData.responseMean(unit_idx,:),...  %plotting data using errorbar
         UnitsData.responseSD(unit_idx,:), 'o');
     plot(x_vec, UnitsData.VMfit{unit_idx}(x_vec_rad), 'r');   %plotting fit result
     xticks(x_ticks);
@@ -142,6 +143,7 @@ for unit_idx = 1:num_of_neurons
     end
 end
 hold off;
+toc
 
 
 

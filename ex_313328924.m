@@ -94,11 +94,11 @@ for unit_idx = 1:num_of_neurons
     fitOpt_drct = fitoptions (FitDeff_drct); %determining start values for fit_drct 
     fitOpt_drct.Lower       = [0, 0     , -pi ]; 
     fitOpt_drct.Upper       = [inf, inf 	, pi  ];
-    fitOpt_drct.Startpoint  = [deg_max   ,2  , start_deg];
+    fitOpt_drct.Startpoint  = [deg_max   ,2  , deg2rad(start_deg)];
     fitOpt_ornt = fitoptions (FitDeff_ornt);    %determining start values for fit_ornt
     fitOpt_ornt.Lower       = [0   ,0  , -pi ];
     fitOpt_ornt.Upper       = [inf , inf	, pi  ];
-    fitOpt_ornt.Startpoint  = [deg_max  , 2   , start_deg - 180];
+    fitOpt_ornt.Startpoint  = [deg_max  , 2   , deg2rad(start_deg) - pi];
     [fitResult_drct, GoF_drct] = fit(deg2rad(deg_vec)',...  %aplying fit for direction function 
         UnitsData.responseMean(unit_idx,:)', FitDeff_drct, fitOpt_drct); 
     [fitResult_ornt, GoF_ornt] = fit(deg2rad(deg_vec)',...  %aplying fit for orientation function 

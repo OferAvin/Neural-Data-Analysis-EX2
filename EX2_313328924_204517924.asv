@@ -92,14 +92,15 @@ for unit_idx = 1:num_of_neurons
 %% calculating VM fit for unit i    
     [deg_max, idx_max] = max(UnitsData.responseMean(unit_idx,:));%finding the max degree to initialize fit with
     start_deg = deg2rad(deg_vec(idx_max)); 					%extracting max degree
-    fitOpt_ornt = fitoptions (FitDeff_ornt);    			%determining start values for fit
-    fitOpt_ornt.Lower       = [0   ,0  , -pi ];
-    fitOpt_ornt.Upper       = [inf , inf	, pi  ];
-    fitOpt_ornt.Startpoint  = [deg_max  , 2   , deg2rad(start_deg)];
-    fitOpt_drct = fitoptions (FitDeff_drct);    			%determining start values for fit
-    fitOpt_drct.Lower       = [0   ,0  , -pi ];
-    fitOpt_drct.Upper       = [inf , inf	, pi  ];
-    fitOpt_drct.Startpoint  = [deg_max  , 2   , deg2rad(start_deg)];
+    fitOpt = fitoptions (FitDeff_ornt);    			%determining start values for fit
+    fitOpt.Lower       = [0   ,0  , -pi ];
+    fitOpt.Upper       = [inf , inf	, pi  ];
+    fitOpt.Startpoint  = [deg_max  , 2   , deg2rad(start_deg)];
+    fitOpt = fitoptions (FitDeff_drct);    			%determining start values for fit
+    fitOpt.Lower       = [0   ,0  , -pi ];
+    fitOpt.Upper       = [inf , inf	, pi  ];
+    fitOpt.Startpoint  = [deg_max  , 2   , deg2rad(start_deg)];
+
     [fitResult_drct, GoF_drct] = fit(deg2rad(deg_vec)',...  %aplying fit for direction function 
         UnitsData.responseMean(unit_idx,:)', FitDeff_drct, fitOpt_drct); 
     [fitResult_ornt, GoF_ornt] = fit(deg2rad(deg_vec)',...  %aplying fit for orientation function 

@@ -41,23 +41,22 @@ for unit_idx = 1:num_of_neurons
 end
 
 %% Plotting
+max_rate = max(max(rate));
 figure('Color', 'white', 'Units', 'centimeters', 'Position' ,[7 ,2, 20, 12]);
 hold on;
 for plotID = 1:num_of_degs
     p = subplot(num_of_plots_per_raws,num_of_degs/num_of_plots_per_raws,plotID);
-    
     hold on;
     sgtitle("Unit  #"+chosen_neuron+" PSTH per direction");
-    set(gca,'YLim',[0 30],'XLim',[0 expirament_duration],'FontSize', axis_ticks_fontSize);
-    if(plotID == 1 || plotID == 7)
+    set(gca,'YLim',[0 max_rate],'XLim',[0 expirament_duration],'FontSize', axis_ticks_fontSize);
+    if(plotID == 1 || plotID == 7)                  %placing ylables only at 1 and 7 subplots
         ylabel('rate[Hz]', 'FontSize', fontSize);
     end
     if(plotID >=7)
-        xlabel('time[sec]', 'FontSize', fontSize);
+        xlabel('time[sec]', 'FontSize', fontSize);  %placing xlables only at the buttom subplots
         pos = get(p, 'position'); 					%get position of subplots in order to reposition
         set(p, 'position', pos + [0, 0.13 ,0 ,0]) 	%reposition subplots
     end
-    yticks(20);
     degree = num2str(deg_vec(plotID));
     title("\theta = "+ degree+" \circ", 'FontSize', fontSize );
     bar(times_bins_vec(1:end-1),rate(plotID,:),'histc');
@@ -123,7 +122,8 @@ sgtitle("Direction/Orientation selectivity - Von Mises fit per unit");
 for unit_idx = 1:num_of_neurons
     subplot (2,5, unit_idx);
     hold on;
-    if UnitsData.selctivity(unit_idx) == "Direction"
+    %adding selectivity to subplot title
+    if UnitsData.selctivity(unit_idx) == "Direction" 
         title("Unit #" + unit_idx + " - Direction", 'FontSize', fontSize-2, 'Color', 'blue');
     else
         title("Unit #" + unit_idx + " - Orientation", 'FontSize', fontSize-2, 'Color', 'magenta');
@@ -132,13 +132,13 @@ for unit_idx = 1:num_of_neurons
         UnitsData.responseSD(unit_idx,:), 'o');
     plot(x_vec, UnitsData.VMfit{unit_idx}(x_vec_rad), 'r');   %plotting fit result
     xticks(x_ticks);
-    if unit_idx == 1 || unit_idx == 6
+    if unit_idx == 1 || unit_idx == 6                         %placing ylables only at 1 and 6 subplots  
         ylabel('rate[Hz]', 'FontSize', fontSize)
     end
-    if unit_idx == 5
+    if unit_idx == 5                                           %placing legends only in the 5th plot
         legend('rate' , 'VM fit');
     end
-    if unit_idx > 5
+    if unit_idx > 5                                            %placing xlables only at the buttom subplots
         xlabel('direction[deg]','FontSize', fontSize)
     end
 end
